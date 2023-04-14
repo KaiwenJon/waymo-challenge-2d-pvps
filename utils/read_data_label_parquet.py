@@ -43,7 +43,7 @@ class DataLabelReader():
         self.cam_segmentation_list = []
         for i, (key_values, r) in enumerate(cam_segmentation_per_frame_df.iterrows()):
             # Read three sequences of 5 camera images for this demo.
-            if i >= 1:
+            if i >= 10:
                 break
             # Store a segmentation label component for each camera.
             self.cam_segmentation_list.append(
