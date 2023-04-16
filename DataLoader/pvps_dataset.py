@@ -28,37 +28,43 @@ class PanopticSegmentationDataset(Dataset):
             4 : "SIDE_LEFT",
             5 : "SIDE_RIGHT"
         }
-        print("Data prepared to be imported:")
+        print("Data prepared to be imported: ", len(self.frames_context_list), " frames.")
         for line in self.frames_context_list:
             print("context_name: ", line[0], "Timestamp: ", line[1])
         
         self.frames_list = [] # a list, each item is a list[(img1, "FRONT"), ..., (img5, "SIDE_RIGHT")] at one time step
         self.labels_list = [] # a list, each item is a list[[img1_label_semantic, img1_label_instance, img1_panoptic_label, "FRONT"], ..., (img5_label_semantic, img5_label_instance, "SIDE_RIGHT")] at one time step
-        end  = 0
-        start = 0
-        for line in self.frames_context_list:
-            context_name, time_stamp = line
-            start = time.time()
-            self.load_frames_from_parquet(context_name, time_stamp)
-            self.load_labels_from_parquet(context_name, time_stamp)
-            end = time.time()
-            print(round(end-start, 2), "s, imported ", context_name, time_stamp)
+        # end  = 0
+        # start = 0
+        # for line in self.frames_context_list:
+        #     context_name, time_stamp = line
+        #     start = time.time()
+        #     self.load_frames_from_parquet(context_name, time_stamp)
+        #     self.load_labels_from_parquet(context_name, time_stamp)
+        #     end = time.time()
+        #     print(round(end-start, 2), "s, imported ", context_name, time_stamp)
             
-        print("Imported Done!")
-        print("Num of frames, ", len(self.frames_list))
-        assert(len(self.frames_list) == len(self.labels_list)) # the number of timestamps should match
+        # print("Imported Done!")
+        # print("Num of frames, ", len(self.frames_list))
+        # assert(len(self.frames_list) == len(self.labels_list)) # the number of timestamps should match
         
         
     def __len__(self):
-        return len(self.frames_list)
+        return len(self.frames_context_list)
     
     def __getitem__(self, index):
         """
         get a frame (containing multiple cameras) for one time step
         """
-        frames = self.frames_list[index]# a list of tuple:(rgb input images, camera_num): [(img1, FRONT), (img2, FRONT_LEFT),...,(img5, SIDE_RIGHT)]
-        labels = self.labels_list[index]# a list of 3-tems:(semantic_labels, instance_labels, camera_num):
+        context_name, time_stamp = self.frames_context_list[index]
+        self.load_frames_from_parquet(context_name, time_stamp)
+        self.load_labels_from_parquet(context_name, time_stamp)
+
+        frames = self.frames_list[-1]# a list of tuple:(rgb input images, camera_num): [(img1, FRONT), (img2, FRONT_LEFT),...,(img5, SIDE_RIGHT)]
+        labels = self.labels_list[-1]# a list of 3-tems:(semantic_labels, instance_labels, camera_num):
         
+        self.frames_list.pop(0)
+        self.labels_list.pop(0)
         # apply transform
         if self.transform:
             frames = [(self.transform(img), camera_name) for (img, camera_name) in frames]  
@@ -75,6 +81,7 @@ class PanopticSegmentationDataset(Dataset):
         for each unique timestamp, append a list[(img1, "FRONT"), ..., (img5, "SIDE_RIGHT")] to self.frames_list
         
         """
+        
         camera_image_df = dd.read_parquet(tf.io.gfile.glob(f'{self.frames_path}/{context_name}.parquet'))
         filtered_camera_image_df = camera_image_df[camera_image_df['key.frame_timestamp_micros'] == (desired_time_stamp)]
         frames_for_one_timestamp = []
@@ -89,7 +96,6 @@ class PanopticSegmentationDataset(Dataset):
             image = np.int32(image)
             collected_cameras.append(camera_name)
             frames_for_one_timestamp.append((image, camera_image.key.camera_name))
-        
         # The end, append all frames in this timestamp to global frames_list
         frames_for_one_timestamp = sorted(frames_for_one_timestamp, key=lambda frames_for_one_timestamp: frames_for_one_timestamp[1])
         frames_for_one_timestamp = [(image, self.camera_name_list[camera_num]) for (image, camera_num) in frames_for_one_timestamp]
@@ -111,7 +117,6 @@ class PanopticSegmentationDataset(Dataset):
         frame_keys = ['key.segment_context_name', 'key.frame_timestamp_micros']
         cam_segmentation_per_frame_df = filtered_camera_seg_df.groupby(frame_keys, group_keys=False).agg(list)
         # Group segmentation labels into frames by context name and timestamp.
-
         def ungroup_row(key_names: Sequence[str],
                         key_values: Sequence[str],
                         row: dd.DataFrame) -> Iterator[Dict[str, Any]]:
