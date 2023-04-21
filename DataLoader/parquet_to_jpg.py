@@ -20,14 +20,19 @@ from pvps_dataset import PanopticSegmentationDataset
 
 # I want to know what context_name is in this txt file
 
-def getFramesList(txtFile):
+def getFramesList(txtFile, start_context, context_with_issue):
     context_name_list = []
     frames_dict = {}
     list_ = open(txtFile).read().split()
+    start_fetching = False
     for line in list_:
         frames_line = line.split(',')
         context_name, time_stamp = frames_line
-        if not(context_name in context_name_list):
+        if(context_name == start_context):
+            start_fetching = True
+        if(not start_fetching):
+            continue
+        if not(context_name in context_name_list) and not(context_name in context_with_issue):
             context_name_list.append(context_name)
         if not(context_name in frames_dict):
             frames_dict[context_name] = [time_stamp]
@@ -43,9 +48,14 @@ def getFramesList(txtFile):
     #         print(time)
     return context_name_list, frames_dict
 
-
+context_with_issue = [
+    "10724020115992582208_7660_400_7680_400" # Don't append data from this context
+]
+start_context = "10724020115992582208_7660_400_7680_400" # only append data starting from this context
 txtFile = "./2d_pvps_training_frames.txt"
-context_name_list, frames_dict = getFramesList(txtFile)
+context_name_list, frames_dict = getFramesList(txtFile, start_context, context_with_issue)
+for key in frames_dict:
+    print(key)
 
 my_transform = transforms.Compose([
     transforms.ToTensor()
