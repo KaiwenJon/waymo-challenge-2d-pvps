@@ -49,9 +49,27 @@ def getFramesList(txtFile, start_context, context_with_issue):
     return context_name_list, frames_dict
 
 context_with_issue = [
-    "10724020115992582208_7660_400_7680_400" # Don't append data from this context
+    "10724020115992582208_7660_400_7680_400", # Don't append data from this context
+    "11139647661584646830_5470_000_5490_000",
+    "11379226583756500423_6230_810_6250_810",
+    "13181198025433053194_2620_770_2640_770",
+    "1422926405879888210_51_310_71_310",
+    "14276116893664145886_1785_080_1805_080",
+    "15367782110311024266_2103_310_2123_310",
+    "15832924468527961_1564_160_1584_160",
+    "2590213596097851051_460_000_480_000",
+    "2692887320656885771_2480_000_2500_000",
+    "3919438171935923501_280_000_300_000",
+    "5200186706748209867_80_000_100_000",
+    "5861181219697109969_1732_000_1752_000",
+    "6193696614129429757_2420_000_2440_000",
+    "6559997992780479765_1039_000_1059_000",
+    "6694593639447385226_1040_000_1060_000",
+    "7038362761309539946_4207_130_4227_130",
+    "809159138284604331_3355_840_3375_840",
+    "8806931859563747931_1160_000_1180_000"
 ]
-start_context = "10724020115992582208_7660_400_7680_400" # only append data starting from this context
+start_context = "8806931859563747931_1160_000_1180_000" # only append data starting from this context
 txtFile = "./2d_pvps_training_frames.txt"
 context_name_list, frames_dict = getFramesList(txtFile, start_context, context_with_issue)
 for key in frames_dict:
@@ -65,7 +83,7 @@ frames_path = "/media/kaiwenjon/Kevin-linux-dats/waymo/dataset_v2/training/camer
 labels_path = "/media/kaiwenjon/Kevin-linux-dats/waymo/dataset_v2/training/camera_segmentation"
 datasetNum = None
 desired_timestamp = None
-dataset_folder = "../data"
+dataset_folder = "/media/kaiwenjon/Kevin-linux-dats/waymo/dataset_jpg/training"
 # For each context name, read all the data and store it in a folder
 for context_name in context_name_list:
     print("Fetching context:", context_name)
