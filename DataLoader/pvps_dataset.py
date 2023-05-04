@@ -146,6 +146,7 @@ class PanopticSegmentationDataset(Dataset):
         panoptic_labels, num_cameras_covered, is_tracked_masks, panoptic_label_divisor = camera_segmentation_utils.decode_multi_frame_panoptic_labels_from_segmentation_labels(
             segmentation_protos_flat, remap_to_global=True
         )
+        print("panoptic_label_divisor",panoptic_label_divisor)
         NUM_CAMERA_FRAMES = 5
         for i in range(0, len(segmentation_protos_flat), NUM_CAMERA_FRAMES):
             labels = []
