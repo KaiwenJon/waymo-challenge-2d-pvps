@@ -76,8 +76,8 @@ context_with_issue = [
     # "10649066155322078676_1660_000_1680_000"
     # Can't find context name based on txt...
 ]
-start_context = "10149575340910243572_2720_000_2740_000" # only append data starting from this context
-txtFile = "./2d_pvps_test_frames.txt"
+start_context = "1005081002024129653_5313_150_5333_150" # only append data starting from this context
+txtFile = "./2d_pvps_train_frames.txt"
 context_name_list, frames_dict = getFramesList(txtFile, start_context, context_with_issue)
 for key in frames_dict:
     print(key)
@@ -86,11 +86,11 @@ my_transform = transforms.Compose([
     transforms.ToTensor()
 ])
 frames_id_list_path = txtFile
-frames_path = "/media/kaiwenjon/Kevin-linux-dats/waymo/dataset_v2/testing/camera_image"
-labels_path = "/media/kaiwenjon/Kevin-linux-dats/waymo/dataset_v2/testing/camera_segmentation"
+frames_path = "/media/kaiwenjon/Kevin-linux-dats/waymo/dataset_v2/training/camera_image"
+labels_path = "/media/kaiwenjon/Kevin-linux-dats/waymo/dataset_v2/training/camera_segmentation"
 datasetNum = None
 desired_timestamp = None
-dataset_folder = "/media/kaiwenjon/Kevin-linux-dats/waymo/dataset_jpg/testing"
+dataset_folder = "/media/kaiwenjon/Kevin-linux-dats/waymo/dataset_jpg/training_new"
 # For each context name, read all the data and store it in a folder
 for context_name in context_name_list:
     print("Fetching context:", context_name)
@@ -120,6 +120,7 @@ for context_name in context_name_list:
         instance_labels_FRONT_RIGHT = labels[2][1][0]
         instance_labels_SIDE_LEFT = labels[3][1][0]
         instance_labels_SIDE_RIGHT = labels[4][1][0]
+
 
         # torch.Size([batch_size, 3, 1280, 1920])
         panoptic_rgb_labels_FRONT = labels[0][2][0]
